@@ -10,13 +10,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import io.github.eaux.passwordmanager.user_auth.security.Hashes;
-import io.github.eaux.passwordmanager.user_auth.security.JwtUtil;
+import io.github.eaux.passwordmanager.user_auth.security.TokenUtil;
 
 @Controller
 public class AuthController {
 
     Hashes hashes = new Hashes();
-    JwtUtil jwtutil = new JwtUtil();
+    TokenUtil jwtutil = new TokenUtil();
 
     @SuppressWarnings("unused")
     @GetMapping("/login")

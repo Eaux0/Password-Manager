@@ -1,5 +1,7 @@
 package io.github.eaux.passwordmanager.backend.dto;
 
+import com.google.gson.Gson;
+
 import io.github.eaux.passwordmanager.backend.model.UserPassword;
 import io.github.eaux.passwordmanager.backend.model.UserPasswordDetail;
 import lombok.AllArgsConstructor;
@@ -19,38 +21,48 @@ public class PasswordEntityResponseDto {
     private String password;
     private Long passwordId;
 
-    public UserPassword getUserPasswordFromPasswordEntityResponseDto(Long userId,
-            PasswordEntityResponseDto passwordEntityResponseDto) {
+    private static final Gson gson = new Gson();
+
+    public UserPassword getUserPasswordFromPasswordEntityResponseDto(Long userId) {
         UserPassword userPassword = new UserPassword();
-        userPassword.setUserPasswordId(passwordEntityResponseDto.getPasswordId());
+        userPassword.setUserPasswordId(passwordId);
         userPassword.setUserId(userId);
-        userPassword.setGroupId(passwordEntityResponseDto.getGroupId());
-        userPassword.setUserPasswordUserName(passwordEntityResponseDto.getPasswordUserName());
-        userPassword.setUserPassword(passwordEntityResponseDto.getPassword());
+        userPassword.setGroupId(groupId);
+        userPassword.setUserPasswordUserName(passwordUserName);
+        userPassword.setUserPassword(password);
         return userPassword;
     }
 
-    public UserPasswordDetail getUserPasswordDetailFromPasswordEntityResponseDto(Long userId, Long passwordDetailId,
-            PasswordEntityResponseDto passwordEntityResponseDto) {
+    // Convert this DTO to UserPasswordDetail
+    public UserPasswordDetail getUserPasswordDetailFromPasswordEntityResponseDto(Long userId, Long passwordDetailId) {
         UserPasswordDetail userPasswordDetail = new UserPasswordDetail();
         userPasswordDetail.setUserPasswordDetailId(passwordDetailId);
         userPasswordDetail.setUserId(userId);
-        userPasswordDetail.setUserPasswordId(passwordEntityResponseDto.getPasswordId());
-        userPasswordDetail.setUserPasswordName(passwordEntityResponseDto.getPasswordName());
-        userPasswordDetail.setUserPasswordDescription(passwordEntityResponseDto.getPasswordDescription());
+        userPasswordDetail.setUserPasswordId(passwordId);
+        userPasswordDetail.setUserPasswordName(passwordName);
+        userPasswordDetail.setUserPasswordDescription(passwordDescription);
         return userPasswordDetail;
     }
 
+    // Create DTO from UserPassword and UserPasswordDetail
     public PasswordEntityResponseDto getPasswordEntityResponseDtoFromUserPasswords(UserPassword userPassword,
             UserPasswordDetail userPasswordDetail) {
-        PasswordEntityResponseDto passwordEntityResponseDto = new PasswordEntityResponseDto();
-        passwordEntityResponseDto.setPasswordId(userPassword.getUserPasswordId());
-        passwordEntityResponseDto.setGroupId(userPassword.getGroupId());
-        passwordEntityResponseDto.setPasswordUserName(userPassword.getUserPasswordUserName());
-        passwordEntityResponseDto.setPassword(userPassword.getUserPassword());
-        passwordEntityResponseDto.setPasswordName(userPasswordDetail.getUserPasswordName());
-        passwordEntityResponseDto.setPasswordDescription(userPasswordDetail.getUserPasswordDescription());
-        return passwordEntityResponseDto;
+        PasswordEntityResponseDto dto = new PasswordEntityResponseDto();
+        dto.setPasswordId(userPassword.getUserPasswordId());
+        dto.setGroupId(userPassword.getGroupId());
+        dto.setPasswordUserName(userPassword.getUserPasswordUserName());
+        dto.setPassword(userPassword.getUserPassword());
+        dto.setPasswordName(userPasswordDetail.getUserPasswordName());
+        dto.setPasswordDescription(userPasswordDetail.getUserPasswordDescription());
+        return dto;
+    }
+
+    public String toJson() {
+        return gson.toJson(this);
+    }
+
+    public static PasswordEntityResponseDto fromJson(String classJson) {
+        return gson.fromJson(classJson, PasswordEntityResponseDto.class);
     }
 
 }

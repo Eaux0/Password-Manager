@@ -1,7 +1,6 @@
 package io.github.eaux.passwordmanager.backend.dto;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.google.gson.Gson;
 
 import io.github.eaux.passwordmanager.backend.model.Group;
 import lombok.AllArgsConstructor;
@@ -19,26 +18,18 @@ public class GroupRequestDto {
     private String groupName;
     private String groupDescription;
 
-    public String toString() {
-        Map<String, String> currClass = new HashMap<>();
-        currClass.put("userId", userId.toString());
-        currClass.put("groupId", groupId.toString());
-        currClass.put("groupName", groupName.toString());
-        currClass.put("groupDescription", groupDescription.toString());
-        return currClass.toString();
+    private static final Gson gson = new Gson();
+
+    public Group getGroupFromGroupRequestDto() {
+        return new Group(groupId, userId, groupName, groupDescription);
     }
 
-    public Group getGroupFromGroupRequestDto(GroupRequestDto groupRequestDto) {
-        return new Group(groupRequestDto.getGroupId(), groupRequestDto.getUserId(), groupRequestDto.getGroupName(),
-                groupRequestDto.getGroupDescription());
+    public String toJson() {
+        return gson.toJson(this);
     }
 
-    public GroupRequestDto getGroupRequestDtoFromString(String stringDto) {
-
-        stringDto = stringDto.substring(1, stringDto.length() - 1);
-        String[] vals = stringDto.split(",");
-
-        return null;
+    public static GroupRequestDto fromJson(String classJson) {
+        return gson.fromJson(classJson, GroupRequestDto.class);
     }
 
 }

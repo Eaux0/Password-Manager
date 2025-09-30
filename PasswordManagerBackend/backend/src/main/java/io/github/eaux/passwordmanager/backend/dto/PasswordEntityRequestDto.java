@@ -1,5 +1,7 @@
 package io.github.eaux.passwordmanager.backend.dto;
 
+import com.google.gson.Gson;
+
 import io.github.eaux.passwordmanager.backend.model.UserPassword;
 import io.github.eaux.passwordmanager.backend.model.UserPasswordDetail;
 import lombok.AllArgsConstructor;
@@ -21,24 +23,33 @@ public class PasswordEntityRequestDto {
     private String passwordUserName;
     private String password;
 
-    public UserPassword getUserPasswordFromPasswordEntityRequestDto(Long userId,
-            PasswordEntityRequestDto passwordEntityRequestDto) {
+    private static final Gson gson = new Gson();
+
+    public UserPassword getUserPasswordFromPasswordEntityRequestDto(Long userId) {
         UserPassword userPassword = new UserPassword();
         userPassword.setUserId(userId);
-        userPassword.setGroupId(passwordEntityRequestDto.getGroupId());
-        userPassword.setUserPasswordUserName(passwordEntityRequestDto.getPasswordUserName());
-        userPassword.setUserPassword(passwordEntityRequestDto.getPassword());
+        userPassword.setGroupId(groupId);
+        userPassword.setUserPasswordUserName(passwordUserName);
+        userPassword.setUserPassword(password);
         return userPassword;
     }
 
-    public UserPasswordDetail getUserPasswordDetailFromPasswordEntityRequestDto(Long userId, Long userPasswordDetailId,
-            PasswordEntityRequestDto passwordEntityRequestDto) {
+    // Convert this DTO to UserPasswordDetail
+    public UserPasswordDetail getUserPasswordDetailFromPasswordEntityRequestDto(Long userId) {
         UserPasswordDetail userPasswordDetail = new UserPasswordDetail();
         userPasswordDetail.setUserId(userId);
-        userPasswordDetail.setUserPasswordId(passwordEntityRequestDto.getUserPasswordId());
-        userPasswordDetail.setUserPasswordName(passwordEntityRequestDto.getPasswordName());
-        userPasswordDetail.setUserPasswordDescription(passwordEntityRequestDto.getPasswordDescription());
+        userPasswordDetail.setUserPasswordId(userPasswordId);
+        userPasswordDetail.setUserPasswordName(passwordName);
+        userPasswordDetail.setUserPasswordDescription(passwordDescription);
         return userPasswordDetail;
+    }
+
+    public String toJson() {
+        return gson.toJson(this);
+    }
+
+    public static PasswordEntityRequestDto fromJson(String classJson) {
+        return gson.fromJson(classJson, PasswordEntityRequestDto.class);
     }
 
 }

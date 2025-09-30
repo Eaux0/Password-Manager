@@ -102,7 +102,7 @@ public class PasswordManagerController {
     @PutMapping("/groups/{groupId}")
     public GroupResponseDto modifyGroupByGroupId(@PathVariable Long groupId, GroupRequestDto modifiedGroup) {
         Group group = groupService.modifyGroupByGroupId(groupId,
-                modifiedGroup.getGroupFromGroupRequestDto(modifiedGroup));
+                modifiedGroup.getGroupFromGroupRequestDto());
         return new GroupResponseDto().getGroupResponseDtoFromGroup(group);
     }
 
@@ -110,29 +110,26 @@ public class PasswordManagerController {
     public PasswordEntityResponseDto modifyPasswordByPasswordId(@PathVariable Long passwordId,
             PasswordEntityRequestDto modifiedPassword) {
         var userPassword = userPasswordService.modifyUserPasswordByUserPasswordId(passwordId,
-                modifiedPassword.getUserPasswordFromPasswordEntityRequestDto(getLoggedInUserId(), modifiedPassword));
+                modifiedPassword.getUserPasswordFromPasswordEntityRequestDto(getLoggedInUserId()));
         var userPasswordDetail = userPasswordDetailsService.modifyUserPasswordDetailByUserPasswordDetailId(
                 userPasswordDetailsService.getUserPasswordDetailIdByUserPasswordId(passwordId),
-                modifiedPassword.getUserPasswordDetailFromPasswordEntityRequestDto(getLoggedInUserId(),
-                        userPasswordDetailsService.getUserPasswordDetailIdByUserPasswordId(passwordId),
-                        modifiedPassword));
+                modifiedPassword.getUserPasswordDetailFromPasswordEntityRequestDto(getLoggedInUserId()));
         return new PasswordEntityResponseDto()
                 .getPasswordEntityResponseDtoFromUserPasswords(userPassword, userPasswordDetail);
     }
 
     @PostMapping("/groups")
     public GroupResponseDto createGroup(@RequestBody GroupRequestDto newGroup) {
-        Group group = groupService.createGroup(newGroup.getGroupFromGroupRequestDto(newGroup));
+        Group group = groupService.createGroup(newGroup.getGroupFromGroupRequestDto());
         return new GroupResponseDto().getGroupResponseDtoFromGroup(group);
     }
 
     @PostMapping("/passwords")
     public PasswordEntityResponseDto createPassword(@RequestBody PasswordEntityRequestDto newPassword) {
         var userPassword = userPasswordService.createUserPassword(
-                newPassword.getUserPasswordFromPasswordEntityRequestDto(getLoggedInUserId(), newPassword));
+                newPassword.getUserPasswordFromPasswordEntityRequestDto(getLoggedInUserId()));
         var userPasswordDetail = userPasswordDetailsService.createUserPasswordDetail(
-                newPassword.getUserPasswordDetailFromPasswordEntityRequestDto(getLoggedInUserId(),
-                        null, newPassword));
+                newPassword.getUserPasswordDetailFromPasswordEntityRequestDto(getLoggedInUserId()));
         return new PasswordEntityResponseDto()
                 .getPasswordEntityResponseDtoFromUserPasswords(userPassword, userPasswordDetail);
     }

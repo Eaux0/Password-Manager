@@ -13,7 +13,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class JwtUtil {
+public class TokenUtil {
 
     private Long userId;
     private Date loginAt;
