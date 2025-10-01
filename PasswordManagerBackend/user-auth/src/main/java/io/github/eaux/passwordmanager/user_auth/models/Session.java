@@ -1,7 +1,5 @@
 package io.github.eaux.passwordmanager.user_auth.models;
 
-import java.util.Date;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -18,25 +16,29 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-@Table(name = "credentials")
-public class Credentials {
+@Table(name = "sessions")
+public class Session {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    long credentialId;
+    private Long sessionId;
 
     @Column(name = "user_id")
-    long userId;
+    private Long userId;
 
-    @Column(name = "public_key")
-    String publicKey;
+    @Column(name = "token")
+    private String token;
 
-    @Column(name = "private_key")
-    String privateKey;
+    @Column(name = "encrypted_aes_key")
+    private String encryptedAESKey;
 
-    @Column(name = "created_at")
-    Date createdAt;
+    @Column(name = "issued_at")
+    private String issuedAt;
 
-    @Column(name = "updated_at")
-    Date updatedAt;
+    @Column(name = "expires_at")
+    private String expiresAt;
+
+    @Column(name = "last_activity")
+    private String lastActivity;
+
 }

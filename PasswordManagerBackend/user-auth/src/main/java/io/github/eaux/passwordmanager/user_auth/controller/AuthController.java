@@ -7,16 +7,18 @@ import java.util.Date;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import io.github.eaux.passwordmanager.user_auth.security.Hashes;
 import io.github.eaux.passwordmanager.user_auth.security.TokenUtil;
 
 @Controller
+@RequestMapping("/api")
 public class AuthController {
 
     Hashes hashes = new Hashes();
-    TokenUtil jwtutil = new TokenUtil();
+    TokenUtil tokenUtil = new TokenUtil();
 
     @SuppressWarnings("unused")
     @GetMapping("/login")
@@ -54,11 +56,11 @@ public class AuthController {
 
     @GetMapping("/generateAndRefreshToken")
     public String generateAndRefreshToken() {
-        return jwtutil.refreshAndGenerateToken();
+        return tokenUtil.refreshAndGenerateToken();
     }
 
     public String generateJwtToken() {
-        return jwtutil.generateToken();
+        return tokenUtil.generateToken();
     }
 
     @SuppressWarnings("unused")
