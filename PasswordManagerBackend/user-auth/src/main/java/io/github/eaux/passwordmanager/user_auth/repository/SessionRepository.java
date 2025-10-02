@@ -7,6 +7,6 @@ import io.github.eaux.passwordmanager.user_auth.models.Session;
 
 public interface SessionRepository extends JpaRepository<Session, Long> {
 
-    @Query("select s.encrypted_aes_key from sessions s where s.userId = :userId")
+    @Query("select s.encryptedAESKey from Session s where s.userId = :userId")
     public String getencryptedAESKey(Long userId);
 }

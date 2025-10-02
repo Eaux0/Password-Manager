@@ -11,14 +11,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Hashes {
+@Setter
+public class HashesUtil {
 
     private String AESKey;
     private KeyPair keyPair;
-    private PrivateKey privateKey;
+    private String privateKey;
 
     private SecretKeySpec getKey(String hasher) throws Exception {
         MessageDigest sha = MessageDigest.getInstance("SHA-256");

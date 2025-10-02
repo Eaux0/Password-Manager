@@ -18,6 +18,7 @@ public class TokenUtil {
     private Long userId;
     private Date loginAt;
     private Date expirationTime;
+    private Long sessionId;
 
     public void setLoginAt(Date loginAt) {
         this.loginAt = loginAt;
@@ -31,6 +32,7 @@ public class TokenUtil {
         token.put("userId", userId.toString());
         token.put("loginAt", loginAt.toString());
         token.put("expirationTime", expirationTime.toString());
+        token.put("sessionId", sessionId.toString());
         return token.toString();
     }
 
