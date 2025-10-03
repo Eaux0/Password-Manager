@@ -4,11 +4,11 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import io.github.eaux.passwordmanager.user_auth.dto.LoginDto;
 import io.github.eaux.passwordmanager.user_auth.models.Credentials;
@@ -20,7 +20,7 @@ import io.github.eaux.passwordmanager.user_auth.service.CredentialsService;
 import io.github.eaux.passwordmanager.user_auth.service.SessionService;
 import io.github.eaux.passwordmanager.user_auth.service.UserService;
 
-@Controller
+@RestController
 @RequestMapping("/api")
 public class AuthController {
 
@@ -37,7 +37,7 @@ public class AuthController {
     TokenUtil tokenUtil;
 
     @GetMapping("/login")
-    public String login(@RequestParam LoginDto loginDto) {
+    public String login(@RequestBody LoginDto loginDto) {
 
         String username = loginDto.getUsername();
         String password = loginDto.getPassword();
@@ -64,7 +64,7 @@ public class AuthController {
     }
 
     @PostMapping("/AESkey")
-    public Boolean getAESKeyAndToken(@RequestParam String AESKey) throws Exception {
+    public Boolean getAESKeyAndToken(@RequestBody String AESKey) throws Exception {
         // Decode AESKey
         hashesUtil.setAESKey(AESKey);
 
@@ -92,7 +92,7 @@ public class AuthController {
     }
 
     @PostMapping("/signUp")
-    public String signUp(@RequestParam LoginDto loginDto) throws NoSuchAlgorithmException {
+    public String signUp(@RequestBody LoginDto loginDto) throws NoSuchAlgorithmException {
 
         String[] keys = hashesUtil.generateKeys();
 
@@ -120,13 +120,13 @@ public class AuthController {
         return "User registered successfully";
     }
 
-    @GetMapping("/encryptData")
-    public String encyptData(@RequestParam String responseString) throws Exception {
+    @PostMapping("/encryptData")
+    public String encryptData(@RequestBody String responseString) throws Exception {
         return hashesUtil.encryptResponse(responseString);
     }
 
     @PostMapping("/decryptData")
-    public String decryptData(@RequestParam String requestString) throws Exception {
+    public String decryptData(@RequestBody String requestString) throws Exception {
         return hashesUtil.decryptpayload(requestString);
     }
 }

@@ -1,6 +1,9 @@
 package io.github.eaux.passwordmanager.backend.dto;
 
+import java.util.List;
+
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import io.github.eaux.passwordmanager.backend.model.UserPassword;
 import io.github.eaux.passwordmanager.backend.model.UserPasswordDetail;
@@ -61,8 +64,20 @@ public class PasswordEntityResponseDto {
         return gson.toJson(this);
     }
 
-    public static PasswordEntityResponseDto fromJson(String classJson) {
+    public String toJson(PasswordEntityResponseDto passwordEntityResponseDto) {
+        return gson.toJson(passwordEntityResponseDto);
+    }
+
+    public String toJson(List<PasswordEntityResponseDto> passwordEntityResponseDtos) {
+        return gson.toJson(passwordEntityResponseDtos);
+    }
+
+    public PasswordEntityResponseDto fromJson(String classJson) {
         return gson.fromJson(classJson, PasswordEntityResponseDto.class);
     }
 
+    public List<PasswordEntityResponseDto> fromJsonList(String json) {
+        return gson.fromJson(json, new TypeToken<List<PasswordEntityResponseDto>>() {
+        }.getType());
+    }
 }
