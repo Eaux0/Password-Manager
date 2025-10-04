@@ -1,9 +1,6 @@
 package io.github.eaux.passwordmanager.backend.controller;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,6 +12,7 @@ import io.github.eaux.passwordmanager.backend.dto.PasswordEntityRequestDto;
 import io.github.eaux.passwordmanager.backend.dto.PasswordEntityResponseDto;
 import io.github.eaux.passwordmanager.backend.model.Group;
 import io.github.eaux.passwordmanager.backend.service.GroupService;
+import io.github.eaux.passwordmanager.backend.service.RedisSessionService;
 import io.github.eaux.passwordmanager.backend.service.UserPasswordDetailService;
 import io.github.eaux.passwordmanager.backend.service.UserPasswordService;
 
@@ -24,7 +22,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.reactive.function.client.WebClient;
 
 @RestController
 @RequestMapping("/api")
@@ -39,9 +36,10 @@ public class PasswordManagerController {
     @Autowired
     private UserPasswordDetailService userPasswordDetailsService;
 
-    private final WebClient webClient = WebClient.create("http://localhost:8081");
-    @SuppressWarnings("unused")
-    private Map<String, String> sessionParams = new HashMap<>();
+    @Autowired
+    private RedisSessionService redisSessionService;
+
+    private Long sessionId;
 
     private GroupResponseDto emptyGroupResponseDto = new GroupResponseDto();
     private PasswordEntityResponseDto emptyPasswordEntityResponseDto = new PasswordEntityResponseDto();
@@ -153,12 +151,10 @@ public class PasswordManagerController {
                 .getPasswordEntityResponseDtoFromUserPasswords(userPassword, userPasswordDetail).toJson());
     }
 
-    @GetMapping("/generatePassword")
-    public String generatePassword(@RequestBody int length,
-            @RequestBody boolean includeSpecialChars,
-            @RequestBody boolean includeNumbers) {
-        return encryptRespose(
-                userPasswordService.generatePassword(length, includeSpecialChars, includeNumbers).toString());
+    @PostMapping("/session/{sessionId}")
+    public Boolean getSessionId(@PathVariable Long sessionId) {
+        this.sessionId = sessionId;
+        return true;
     }
 
     @GetMapping("/search/passwords?searchString={searchString}")
@@ -186,23 +182,36 @@ public class PasswordManagerController {
         return encryptRespose(emptyGroupResponseDto.toJson(groupResponseDtos));
     }
 
-    @PostMapping("/populateSession")
-    public void populateSessionParams(@RequestBody Map<String, String> params) {
-        sessionParams = params;
+    public Long getLoggedInUserId() {
+        return redisSessionService.getUserIdForSessionId(this.sessionId);
     }
 
-    public Long getLoggedInUserId() {
-        return Long.valueOf(sessionParams.get("userId"));
+    public String getAESKeyString() {
+        return redisSessionService.getAESKeyStringForSessionId(this.sessionId);
+    }
+
+    public Long getSessionId() {
+        return this.sessionId;
     }
 
     public String encryptRespose(String apiResponse) {
-        return webClient.post().uri("/api/encryptData").bodyValue(apiResponse).retrieve().bodyToMono(String.class)
-                .block();
+        // return webClient.post().uri("/api/encryptData/" +
+        // getSessionId().toString()).bodyValue(apiResponse).retrieve()
+        // .bodyToMono(String.class)
+        // .block();
+
+        // Return encrypted respose
+        return null;
     }
 
     public String decryptedPayload(String apiPayload) {
-        return webClient.post().uri("/api/decryptData").bodyValue(apiPayload).retrieve().bodyToMono(String.class)
-                .block();
+        // return webClient.post().uri("/api/decryptData/" +
+        // getSessionId().toString()).bodyValue(apiPayload).retrieve()
+        // .bodyToMono(String.class)
+        // .block();
+
+        // Retrun decrypted payload
+        return null;
     }
 
 }

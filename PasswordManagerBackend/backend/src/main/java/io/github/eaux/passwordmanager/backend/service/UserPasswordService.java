@@ -39,10 +39,6 @@ public class UserPasswordService {
         return userPasswordRepository.save(newUserPassword);
     }
 
-    public String generatePassword(int length, boolean includeSpecialChars, boolean includeNumbers) {
-        return "generatedPassword";
-    }
-
     public List<UserPassword> searchUserPasswords(Long userId, String searchString) {
         return userPasswordRepository.findAllByUserIdAndSearchString(userId, searchString);
     }

@@ -9,14 +9,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import io.github.eaux.passwordmanager.user_auth.dto.LoginDto;
 import io.github.eaux.passwordmanager.user_auth.models.Credentials;
+import io.github.eaux.passwordmanager.user_auth.models.RedisSessionData;
 import io.github.eaux.passwordmanager.user_auth.models.Session;
 import io.github.eaux.passwordmanager.user_auth.models.User;
 import io.github.eaux.passwordmanager.user_auth.security.HashesUtil;
 import io.github.eaux.passwordmanager.user_auth.security.TokenUtil;
 import io.github.eaux.passwordmanager.user_auth.service.CredentialsService;
+import io.github.eaux.passwordmanager.user_auth.service.RedisSessionService;
 import io.github.eaux.passwordmanager.user_auth.service.SessionService;
 import io.github.eaux.passwordmanager.user_auth.service.UserService;
 
@@ -33,8 +36,17 @@ public class AuthController {
     @Autowired
     CredentialsService credentialsService;
 
+    @Autowired
+    private final RedisSessionService redisSessionService;
+
+    private final WebClient webClient = WebClient.create("http://localhost:8080");
+
     HashesUtil hashesUtil = new HashesUtil();
     TokenUtil tokenUtil;
+
+    AuthController(RedisSessionService redisSessionService) {
+        this.redisSessionService = redisSessionService;
+    }
 
     @GetMapping("/login")
     public String login(@RequestBody LoginDto loginDto) {
@@ -58,9 +70,14 @@ public class AuthController {
         sessionService.createOrModifySession(new Session(newSession.getSessionId(), currUser.getUserId(),
                 tokenUtil.generateToken(), "", newSession.getIssuedAt(), tokenUtil.getExpirationTime().toString(), ""));
 
+        webClient.post().uri("/api/session/" + newSession.getSessionId().toString()).retrieve()
+                .bodyToMono(Boolean.class).block();
+
+        redisSessionService.saveSessionData(newSession.getSessionId(),
+                new RedisSessionData(newSession.getUserId(), newSession.getEncryptedAESKey()));
+
         hashesUtil.setPrivateKey(credentialsService.getPrivateKey(currUser.getUserId()));
         return "Login Successfull|" + credentialsService.getPublicKey(currUser.getUserId());
-
     }
 
     @PostMapping("/AESkey")
@@ -117,16 +134,31 @@ public class AuthController {
         sessionService.createOrModifySession(new Session(newSession.getSessionId(), newUser.getUserId(),
                 tokenUtil.generateToken(), "", newSession.getIssuedAt(), tokenUtil.getExpirationTime().toString(), ""));
 
+        webClient.post().uri("/api/session/" + newSession.getSessionId().toString()).retrieve()
+                .bodyToMono(Boolean.class).block();
+
+        redisSessionService.saveSessionData(newSession.getSessionId(),
+                new RedisSessionData(newSession.getUserId(), newSession.getEncryptedAESKey()));
+
         return "User registered successfully";
     }
 
-    @PostMapping("/encryptData")
-    public String encryptData(@RequestBody String responseString) throws Exception {
-        return hashesUtil.encryptResponse(responseString);
+    @GetMapping("/generatePassword")
+    public String generatePassword(@RequestBody int length,
+            @RequestBody boolean includeSpecialChars,
+            @RequestBody boolean includeNumbers) {
+        return "abcd";
     }
 
-    @PostMapping("/decryptData")
-    public String decryptData(@RequestBody String requestString) throws Exception {
-        return hashesUtil.decryptpayload(requestString);
-    }
+    // @PostMapping("/encryptData/{sessionId}")
+    // public String encryptData(@PathVariable Long sessionId, @RequestBody String
+    // responseString) throws Exception {
+    // return hashesUtil.encryptResponse(responseString);
+    // }
+
+    // @PostMapping("/decryptData/{sessionId}")
+    // public String decryptData(@PathVariable Long sessionId, @RequestBody String
+    // requestString) throws Exception {
+    // return hashesUtil.decryptpayload(requestString);
+    // }
 }
