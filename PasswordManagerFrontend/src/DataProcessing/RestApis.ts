@@ -1,3 +1,5 @@
+import CryptoJS from 'crypto-js';
+
 
 export interface GroupResponse {
   groupId: number;
@@ -22,72 +24,35 @@ export interface UserPasswordDetailResponse {
   userPasswordDescription?: string;
 }
 
+let aesKey;
 
-const encodedInterface = (obj: any): string => {
-  return obj.toString()
+export function generateAesKey(): string {
+  const key = crypto.getRandomValues(new Uint8Array(128));
+  aesKey = btoa(String.fromCharCode(...key));
+  return aesKey;
 }
 
-const decodedInterface = (str: string): any => {
-  return JSON.parse(str);
-};
-
-
-async function encryptWithPublicKey(
-  publicKeyPem: string,
-  plaintext: string
-): Promise<string> {
-
-  // Convert PEM public key to ArrayBuffer
-  function pemToArrayBuffer(pem: string): ArrayBuffer {
-    const b64 = pem;
-    const binary = atob(b64);
-    const buffer = new ArrayBuffer(binary.length);
-    const view = new Uint8Array(buffer);
-    for (let i = 0; i < binary.length; i++) {
-      view[i] = binary.charCodeAt(i);
-    }
-    return buffer;
-  }
-
-  // Convert ArrayBuffer to Base64
-  function arrayBufferToBase64(buffer: ArrayBuffer): string {
-    const bytes = new Uint8Array(buffer);
-    let binary = '';
-    for (let i = 0; i < bytes.byteLength; i++) {
-      binary += String.fromCharCode(bytes[i]);
-    }
-    return btoa(binary);
-  }
-
-  // Import public key (SPKI format)
-  const publicKey = await crypto.subtle.importKey(
-    'spki',
-    pemToArrayBuffer(publicKeyPem),
-    {
-      name: 'RSA-OAEP',
-      hash: 'SHA-256',
-    },
-    false,
-    ['encrypt']
-  );
-
-  // Encode plaintext to Uint8Array
-  const encoder = new TextEncoder();
-  const data = encoder.encode(plaintext);
-
-  // Encrypt data
-  const encrypted = await crypto.subtle.encrypt(
-    {
-      name: 'RSA-OAEP',
-    },
-    publicKey,
-    data
-  );
-
-  // Return Base64 ciphertext
-  return arrayBufferToBase64(encrypted);
+function deriveAESKey(hasher: string): CryptoJS.lib.WordArray {
+  const sha256 = CryptoJS.SHA256(hasher);
+  return CryptoJS.lib.WordArray.create(sha256.words.slice(0, 4), 16); 
 }
 
+export function encryptAES(plainText: string, hasher: string): string {
+  const key = deriveAESKey(hasher);
+  const encrypted = CryptoJS.AES.encrypt(plainText, key, {
+    mode: CryptoJS.mode.ECB,
+    padding: CryptoJS.pad.Pkcs7,
+  });
 
-console.log(decodedInterface(encodedInterface({ groupId: 1, userId: 1, groupName: "Group 1" })));
-console.log(encryptWithPublicKey("a","a"));
+  return encrypted.toString(); 
+}
+
+export function decryptAES(base64CipherText: string, hasher: string): string {
+  const key = deriveAESKey(hasher);
+  const decrypted = CryptoJS.AES.decrypt(base64CipherText, key, {
+    mode: CryptoJS.mode.ECB,
+    padding: CryptoJS.pad.Pkcs7,
+  });
+
+  return decrypted.toString(CryptoJS.enc.Utf8);
+}

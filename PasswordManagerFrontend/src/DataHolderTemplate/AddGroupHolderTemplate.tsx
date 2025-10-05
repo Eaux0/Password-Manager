@@ -3,12 +3,15 @@ import React, { useState } from "react";
 interface AddGroupHolderTemplateProps {
   buttonStyle?: (color: "gray" | "blue" | "red") => React.CSSProperties;
   setAddGroupModalShow?: (show: boolean) => void;
+  sessionId: number | null;
 }
 
 const AddGroupHolderTemplate: React.FC<AddGroupHolderTemplateProps> = ({
   buttonStyle,
   setAddGroupModalShow,
+  sessionId,
 }) => {
+  console.log(sessionId);
   const [groupName, setGroupName] = useState("");
   const [groupDescription, setGroupDescription] = useState("");
 

@@ -11,9 +11,10 @@ interface HomeProps {
   token: string | null;
   setToken: (token: string | null) => void;
   setLoggedInStatus: (status: boolean) => void;
+  sessionId: number | null;
 }
 
-const Home = ({ token, setToken, setLoggedInStatus }: HomeProps) => {
+const Home = ({ token, setToken, setLoggedInStatus, sessionId }: HomeProps) => {
   const handleLogout = () => {
     setToken(null);
     setLoggedInStatus(false);
@@ -74,15 +75,19 @@ const Home = ({ token, setToken, setLoggedInStatus }: HomeProps) => {
       {/* <div className="main-content">Home - Token: {token}</div> */}
       {templateType === "Grid" ? (
         <div className="main-content">
-          <GridView setAddPasswordModalShow={setAddPasswordModalShow} />
+          <GridView
+            setAddPasswordModalShow={setAddPasswordModalShow}
+            sessionId={sessionId}
+          />
         </div>
       ) : (
         <div className="main-content">
           <LineView
             index={null}
             gridTitle={null}
-            gridDescription={null}
+            gridDescription={undefined}
             setAddPasswordModalShow={setAddPasswordModalShow}
+            sessionId={sessionId}
           />
         </div>
       )}
@@ -91,6 +96,7 @@ const Home = ({ token, setToken, setLoggedInStatus }: HomeProps) => {
           index={null}
           modalType="addPassword"
           setAddPasswordModalShow={setAddPasswordModalShow}
+          sessionId={sessionId}
         />
       )}
       {addGroupModalShow && (
@@ -98,6 +104,7 @@ const Home = ({ token, setToken, setLoggedInStatus }: HomeProps) => {
           index={null}
           modalType="addGroup"
           setAddGroupModalShow={setAddGroupModalShow}
+          sessionId={sessionId}
         />
       )}
     </>

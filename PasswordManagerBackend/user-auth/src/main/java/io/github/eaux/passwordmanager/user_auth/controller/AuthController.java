@@ -37,16 +37,12 @@ public class AuthController {
     CredentialsService credentialsService;
 
     @Autowired
-    private final RedisSessionService redisSessionService;
+    private RedisSessionService redisSessionService;
 
     private final WebClient webClient = WebClient.create("http://localhost:8080");
 
     HashesUtil hashesUtil = new HashesUtil();
     TokenUtil tokenUtil;
-
-    AuthController(RedisSessionService redisSessionService) {
-        this.redisSessionService = redisSessionService;
-    }
 
     @GetMapping("/login")
     public String login(@RequestBody LoginDto loginDto) {
@@ -93,9 +89,9 @@ public class AuthController {
 
     @GetMapping("/logout")
     public Boolean logout() {
-        // End Session / delete from session table
         Long sessionId = tokenUtil.getSessionId();
         sessionService.deleteSessionBySessionId(sessionId);
+        redisSessionService.deleteSessionData(sessionId);
         return true;
     }
 

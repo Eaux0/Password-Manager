@@ -11,6 +11,7 @@ import io.github.eaux.passwordmanager.backend.dto.GroupResponseDto;
 import io.github.eaux.passwordmanager.backend.dto.PasswordEntityRequestDto;
 import io.github.eaux.passwordmanager.backend.dto.PasswordEntityResponseDto;
 import io.github.eaux.passwordmanager.backend.model.Group;
+import io.github.eaux.passwordmanager.backend.security.HashesUtil;
 import io.github.eaux.passwordmanager.backend.service.GroupService;
 import io.github.eaux.passwordmanager.backend.service.RedisSessionService;
 import io.github.eaux.passwordmanager.backend.service.UserPasswordDetailService;
@@ -39,27 +40,26 @@ public class PasswordManagerController {
     @Autowired
     private RedisSessionService redisSessionService;
 
-    private Long sessionId;
-
     private GroupResponseDto emptyGroupResponseDto = new GroupResponseDto();
     private PasswordEntityResponseDto emptyPasswordEntityResponseDto = new PasswordEntityResponseDto();
     private PasswordEntityRequestDto emptyPasswordEntityRequestDto = new PasswordEntityRequestDto();
     private GroupRequestDto emptyGroupRequestDto = new GroupRequestDto();
+    private HashesUtil hashesUtil = new HashesUtil();
 
-    @GetMapping("/groups")
-    public String getAllGroupsForUser() {
-        Long userId = getLoggedInUserId();
+    @GetMapping("/{sessionId}/groups")
+    public String getAllGroupsForUser(@PathVariable Long sessionId) {
+        Long userId = getLoggedInUserId(sessionId);
         List<Group> groups = groupService.getAllGroupsForUserId(userId);
         List<GroupResponseDto> groupResponseDtos = groups.stream()
                 .map(group -> emptyGroupResponseDto.getGroupResponseDtoFromGroup(group))
                 .toList();
 
-        return encryptRespose(emptyGroupResponseDto.toJson(groupResponseDtos));
+        return encryptRespose(emptyGroupResponseDto.toJson(groupResponseDtos), sessionId);
     }
 
-    @GetMapping("/passwords")
-    public String getAllPasswordsForUser() {
-        Long userId = getLoggedInUserId();
+    @GetMapping("/{sessionId}/passwords")
+    public String getAllPasswordsForUser(@PathVariable Long sessionId) {
+        Long userId = getLoggedInUserId(sessionId);
         List<Long> userPasswordIds = userPasswordService.getAllUserPasswordIdsForUserId(userId);
         List<PasswordEntityResponseDto> passwordEntityResponseDtos = userPasswordIds.stream().map(userPasswordId -> {
             var userPassword = userPasswordService.getUserPasswordByUserPasswordId(userPasswordId);
@@ -68,11 +68,11 @@ public class PasswordManagerController {
             return emptyPasswordEntityResponseDto
                     .getPasswordEntityResponseDtoFromUserPasswords(userPassword, userPasswordDetail);
         }).toList();
-        return encryptRespose(emptyPasswordEntityResponseDto.toJson(passwordEntityResponseDtos));
+        return encryptRespose(emptyPasswordEntityResponseDto.toJson(passwordEntityResponseDtos), sessionId);
     }
 
-    @GetMapping("/groups/{groupId}/passwords")
-    public String getAllPasswordsForGroup(@PathVariable Long groupId) {
+    @GetMapping("/{sessionId}/groups/{groupId}/passwords")
+    public String getAllPasswordsForGroup(@PathVariable Long sessionId, @PathVariable Long groupId) {
         List<Long> userPasswordIds = userPasswordService.getAllUserPasswordIdsForGroupId(groupId);
         List<PasswordEntityResponseDto> passwordEntityResponseDtos = userPasswordIds.stream().map(userPasswordId -> {
             var userPassword = userPasswordService.getUserPasswordByUserPasswordId(userPasswordId);
@@ -81,85 +81,80 @@ public class PasswordManagerController {
             return emptyPasswordEntityResponseDto
                     .getPasswordEntityResponseDtoFromUserPasswords(userPassword, userPasswordDetail);
         }).toList();
-        return encryptRespose(emptyPasswordEntityResponseDto.toJson(passwordEntityResponseDtos));
+        return encryptRespose(emptyPasswordEntityResponseDto.toJson(passwordEntityResponseDtos), sessionId);
     }
 
-    @GetMapping("/groups/{groupId}")
-    public String getGroupByGroupId(@PathVariable Long groupId) {
+    @GetMapping("/{sessionId}/groups/{groupId}")
+    public String getGroupByGroupId(@PathVariable Long sessionId, @PathVariable Long groupId) {
         Group group = groupService.getGroupByGroupId(groupId);
-        return encryptRespose(emptyGroupResponseDto.getGroupResponseDtoFromGroup(group).toJson());
+        return encryptRespose(emptyGroupResponseDto.getGroupResponseDtoFromGroup(group).toJson(), sessionId);
     }
 
-    @GetMapping("/passwords/{passwordId}")
-    public String getPasswordByPasswordId(@PathVariable Long passwordId) {
+    @GetMapping("/{sessionId}/passwords/{passwordId}")
+    public String getPasswordByPasswordId(@PathVariable Long sessionId, @PathVariable Long passwordId) {
         var userPassword = userPasswordService.getUserPasswordByUserPasswordId(passwordId);
         var userPasswordDetail = userPasswordDetailsService
                 .getAllUserPasswordDetailsForUserPasswordId(passwordId).stream().findFirst().orElse(null);
         return encryptRespose(emptyPasswordEntityResponseDto
-                .getPasswordEntityResponseDtoFromUserPasswords(userPassword, userPasswordDetail).toJson());
+                .getPasswordEntityResponseDtoFromUserPasswords(userPassword, userPasswordDetail).toJson(), sessionId);
     }
 
-    @DeleteMapping("/groups/{groupId}")
-    public void deleteGroupByGroupId(@PathVariable Long groupId) {
+    @DeleteMapping("/{sessionId}/groups/{groupId}")
+    public void deleteGroupByGroupId(@PathVariable Long sessionId, @PathVariable Long groupId) {
         groupService.deleteGroupByGroupId(groupId);
     }
 
-    @DeleteMapping("/passwords/{passwordId}")
-    public void deletePasswordByPasswordId(@PathVariable Long passwordId) {
+    @DeleteMapping("/{sessionId}/passwords/{passwordId}")
+    public void deletePasswordByPasswordId(@PathVariable Long sessionId, @PathVariable Long passwordId) {
         userPasswordService.deleteUserPasswordByUserPasswordId(passwordId);
         userPasswordDetailsService.deleteUserPasswordDetailsByUserPasswordId(passwordId);
     }
 
-    @PutMapping("/groups/{groupId}")
-    public String modifyGroupByGroupId(@PathVariable Long groupId, @RequestBody String modifiedGroupString) {
-        GroupRequestDto modifiedGroup = emptyGroupRequestDto.fromJson(decryptedPayload(modifiedGroupString));
+    @PutMapping("/{sessionId}/groups/{groupId}")
+    public String modifyGroupByGroupId(@PathVariable Long sessionId, @PathVariable Long groupId,
+            @RequestBody String modifiedGroupString) {
+        GroupRequestDto modifiedGroup = emptyGroupRequestDto.fromJson(decryptedPayload(modifiedGroupString, sessionId));
         Group group = groupService.modifyGroupByGroupId(groupId,
                 modifiedGroup.getGroupFromGroupRequestDto());
-        return encryptRespose(emptyGroupResponseDto.getGroupResponseDtoFromGroup(group).toJson());
+        return encryptRespose(emptyGroupResponseDto.getGroupResponseDtoFromGroup(group).toJson(), sessionId);
     }
 
-    @PutMapping("/passwords/{passwordId}")
-    public String modifyPasswordByPasswordId(@PathVariable Long passwordId,
+    @PutMapping("/{sessionId}/passwords/{passwordId}")
+    public String modifyPasswordByPasswordId(@PathVariable Long sessionId, @PathVariable Long passwordId,
             @RequestBody String modifiedPasswordString) {
         PasswordEntityRequestDto modifiedPassword = emptyPasswordEntityRequestDto
-                .fromJson(decryptedPayload(modifiedPasswordString));
+                .fromJson(decryptedPayload(modifiedPasswordString, sessionId));
         var userPassword = userPasswordService.modifyUserPasswordByUserPasswordId(passwordId,
-                modifiedPassword.getUserPasswordFromPasswordEntityRequestDto(getLoggedInUserId()));
+                modifiedPassword.getUserPasswordFromPasswordEntityRequestDto(getLoggedInUserId(sessionId)));
         var userPasswordDetail = userPasswordDetailsService.modifyUserPasswordDetailByUserPasswordDetailId(
                 userPasswordDetailsService.getUserPasswordDetailIdByUserPasswordId(passwordId),
-                modifiedPassword.getUserPasswordDetailFromPasswordEntityRequestDto(getLoggedInUserId()));
+                modifiedPassword.getUserPasswordDetailFromPasswordEntityRequestDto(getLoggedInUserId(sessionId)));
         return encryptRespose(emptyPasswordEntityResponseDto
-                .getPasswordEntityResponseDtoFromUserPasswords(userPassword, userPasswordDetail).toJson());
+                .getPasswordEntityResponseDtoFromUserPasswords(userPassword, userPasswordDetail).toJson(), sessionId);
     }
 
-    @PostMapping("/groups")
-    public String createGroup(@RequestBody String newGroupString) {
-        GroupRequestDto newGroup = emptyGroupRequestDto.fromJson(decryptedPayload(newGroupString));
+    @PostMapping("/{sessionId}/groups")
+    public String createGroup(@PathVariable Long sessionId, @RequestBody String newGroupString) {
+        GroupRequestDto newGroup = emptyGroupRequestDto.fromJson(decryptedPayload(newGroupString, sessionId));
         Group group = groupService.createGroup(newGroup.getGroupFromGroupRequestDto());
-        return encryptRespose(emptyGroupResponseDto.getGroupResponseDtoFromGroup(group).toJson());
+        return encryptRespose(emptyGroupResponseDto.getGroupResponseDtoFromGroup(group).toJson(), sessionId);
     }
 
-    @PostMapping("/passwords")
-    public String createPassword(@RequestBody String newPasswordString) {
+    @PostMapping("/{sessionId}/passwords")
+    public String createPassword(@PathVariable Long sessionId, @RequestBody String newPasswordString) {
         PasswordEntityRequestDto newPassword = emptyPasswordEntityRequestDto
-                .fromJson(decryptedPayload(newPasswordString));
+                .fromJson(decryptedPayload(newPasswordString, sessionId));
         var userPassword = userPasswordService.createUserPassword(
-                newPassword.getUserPasswordFromPasswordEntityRequestDto(getLoggedInUserId()));
+                newPassword.getUserPasswordFromPasswordEntityRequestDto(getLoggedInUserId(sessionId)));
         var userPasswordDetail = userPasswordDetailsService.createUserPasswordDetail(
-                newPassword.getUserPasswordDetailFromPasswordEntityRequestDto(getLoggedInUserId()));
+                newPassword.getUserPasswordDetailFromPasswordEntityRequestDto(getLoggedInUserId(sessionId)));
         return encryptRespose(emptyPasswordEntityResponseDto
-                .getPasswordEntityResponseDtoFromUserPasswords(userPassword, userPasswordDetail).toJson());
+                .getPasswordEntityResponseDtoFromUserPasswords(userPassword, userPasswordDetail).toJson(), sessionId);
     }
 
-    @PostMapping("/session/{sessionId}")
-    public Boolean getSessionId(@PathVariable Long sessionId) {
-        this.sessionId = sessionId;
-        return true;
-    }
-
-    @GetMapping("/search/passwords?searchString={searchString}")
-    public String searchPasswords(@RequestParam String searchString) {
-        Long userId = getLoggedInUserId();
+    @GetMapping("/{sessionId}/search/passwords?searchString={searchString}")
+    public String searchPasswords(@PathVariable Long sessionId, @RequestParam String searchString) {
+        Long userId = getLoggedInUserId(sessionId);
         List<Long> userPasswordIds = userPasswordService.searchUserPasswords(userId, searchString).stream()
                 .map(userPassword -> userPassword.getUserPasswordId()).toList();
         List<PasswordEntityResponseDto> passwordEntityResponseDtos = userPasswordIds.stream().map(userPasswordId -> {
@@ -169,48 +164,44 @@ public class PasswordManagerController {
             return emptyPasswordEntityResponseDto
                     .getPasswordEntityResponseDtoFromUserPasswords(userPassword, userPasswordDetail);
         }).toList();
-        return encryptRespose(emptyPasswordEntityResponseDto.toJson(passwordEntityResponseDtos));
+        return encryptRespose(emptyPasswordEntityResponseDto.toJson(passwordEntityResponseDtos), sessionId);
     }
 
-    @GetMapping("/search/groups?searchString={searchString}")
-    public String searchGroups(@RequestParam String searchString) {
-        Long userId = getLoggedInUserId();
+    @GetMapping("/{sessionId}/search/groups?searchString={searchString}")
+    public String searchGroups(@PathVariable Long sessionId, @RequestParam String searchString) {
+        Long userId = getLoggedInUserId(sessionId);
         List<Group> groups = groupService.searchGroup(userId, searchString);
         List<GroupResponseDto> groupResponseDtos = groups.stream()
                 .map(group -> emptyGroupResponseDto.getGroupResponseDtoFromGroup(group))
                 .toList();
-        return encryptRespose(emptyGroupResponseDto.toJson(groupResponseDtos));
+        return encryptRespose(emptyGroupResponseDto.toJson(groupResponseDtos), sessionId);
     }
 
-    public Long getLoggedInUserId() {
-        return redisSessionService.getUserIdForSessionId(this.sessionId);
+    public Long getLoggedInUserId(Long sessionId) {
+        return redisSessionService.getUserIdForSessionId(sessionId);
     }
 
-    public String getAESKeyString() {
-        return redisSessionService.getAESKeyStringForSessionId(this.sessionId);
+    public String getAESKeyString(Long sessionId) {
+        return redisSessionService.getAESKeyStringForSessionId(sessionId);
     }
 
-    public Long getSessionId() {
-        return this.sessionId;
-    }
-
-    public String encryptRespose(String apiResponse) {
-        // return webClient.post().uri("/api/encryptData/" +
-        // getSessionId().toString()).bodyValue(apiResponse).retrieve()
-        // .bodyToMono(String.class)
-        // .block();
-
+    public String encryptRespose(String apiResponse, Long sessionId) {
         // Return encrypted respose
+        try {
+            return hashesUtil.encryptResponse(apiResponse, getAESKeyString(sessionId));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return null;
     }
 
-    public String decryptedPayload(String apiPayload) {
-        // return webClient.post().uri("/api/decryptData/" +
-        // getSessionId().toString()).bodyValue(apiPayload).retrieve()
-        // .bodyToMono(String.class)
-        // .block();
-
+    public String decryptedPayload(String apiPayload, Long sessionId) {
         // Retrun decrypted payload
+        try {
+            return hashesUtil.decryptpayload(apiPayload, getAESKeyString(sessionId));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return null;
     }
 

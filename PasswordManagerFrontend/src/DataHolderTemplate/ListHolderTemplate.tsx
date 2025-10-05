@@ -4,7 +4,7 @@ import ModalViewTemplate from "../PageTemplates/ModalViewTemplate";
 interface ListHolderTemplateProps {
   index: number;
   title: string;
-  description: string;
+  description: string | undefined;
 }
 
 const ListHolderTemplate = ({

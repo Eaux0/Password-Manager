@@ -20,6 +20,7 @@ interface PasswordHolderTemplateProps {
     type: "title" | "description"
   ) => void;
   buttonStyle?: (color: "gray" | "blue" | "red") => React.CSSProperties;
+  sessionId: number | null;
 }
 
 const PasswordHolderTemplate = ({
@@ -39,7 +40,9 @@ const PasswordHolderTemplate = ({
   copiedField,
   handleInput,
   buttonStyle,
+  sessionId,
 }: PasswordHolderTemplateProps) => {
+  console.log(sessionId);
   const deletePassword = (index: number | null) => {
     // Logic to delete the password
     console.log("Password deleted at index:", index);

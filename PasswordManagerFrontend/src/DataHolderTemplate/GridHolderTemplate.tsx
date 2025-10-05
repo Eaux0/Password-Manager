@@ -1,8 +1,9 @@
 interface GridHolderTemplateProps {
   index: number;
   title: string;
-  description: string;
+  description: string | undefined;
   setSelectedGrid: (index: number | null) => void;
+  sessionId: number | null;
 }
 
 const GridHolderTemplate = ({
@@ -10,7 +11,9 @@ const GridHolderTemplate = ({
   title,
   description,
   setSelectedGrid,
+  sessionId,
 }: GridHolderTemplateProps) => {
+  console.log(sessionId);
   return (
     <div
       style={{

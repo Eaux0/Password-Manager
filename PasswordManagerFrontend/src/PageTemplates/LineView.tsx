@@ -1,13 +1,21 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import ListHolderTemplate from "../DataHolderTemplate/ListHolderTemplate";
 import { Button } from "react-bootstrap";
 
 interface LineViewProps {
   index: number | null;
   gridTitle: string | null;
-  gridDescription: string | null;
+  gridDescription: string | undefined;
   setSelectedGrid?: (index: number | null) => void;
   setAddPasswordModalShow: (show: boolean) => void;
+  sessionId: number | null;
+}
+
+interface ListItem {
+  id: number;
+  title: string;
+  description: string | undefined;
 }
 
 const LineView = ({
@@ -15,31 +23,36 @@ const LineView = ({
   gridTitle,
   gridDescription,
   setSelectedGrid,
+  sessionId,
 }: LineViewProps) => {
-  const generateRandomString = (length: number): string => {
-    const chars =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    return Array.from(
-      { length },
-      () => chars[Math.floor(Math.random() * chars.length)]
-    ).join("");
-  };
+  const [passwords, setPasswords] = useState<ListItem[]>([]);
 
-  const passwords: string[] = [];
-  const passwordDescriptions: string[] = [];
+  useEffect(() => {
+    let url = "";
+    if (index != null)
+      url =
+        "https://localhost:8080/api/" + sessionId + "/" + index + "/passwords";
+    else url = "https://localhost:8080/api/" + sessionId + "/passwords";
 
-  for (let i = 0; i < 10; i++) {
-    passwords.push(generateRandomString(10));
-    passwordDescriptions.push(generateRandomString(20));
-  }
+    const fetchPasswords = async () => {
+      try {
+        const response = await axios.get<ListItem[]>(url);
+        setPasswords(response.data);
+      } catch (error) {
+        console.error("Failed to fetch groups", error);
+      }
+    };
+
+    fetchPasswords();
+  }, []);
 
   const listPasswords = (index: number | null) => {
     console.log("Listing passwords for index:", index);
     return passwords.map((password, i) => (
       <ListHolderTemplate
         index={i}
-        title={password}
-        description={passwordDescriptions[i]}
+        title={password.title}
+        description={password.description}
       />
     ));
   };

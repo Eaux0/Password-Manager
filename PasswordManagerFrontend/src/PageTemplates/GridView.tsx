@@ -1,30 +1,32 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import GridHolderTemplate from "../DataHolderTemplate/GridHolderTemplate";
 import LineView from "./LineView";
+import type { GroupResponse } from "../DataProcessing/RestApis.ts";
 
 interface GridViewProps {
   setAddPasswordModalShow: (show: boolean) => void;
+  sessionId: number | null;
 }
 
-const GridView = ({ setAddPasswordModalShow }: GridViewProps) => {
-  const generateRandomString = (length: number): string => {
-    const chars =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    return Array.from(
-      { length },
-      () => chars[Math.floor(Math.random() * chars.length)]
-    ).join("");
-  };
-
-  const grids: string[] = [];
-  const gridDescriptions: string[] = [];
-
-  for (let i = 0; i < 10; i++) {
-    grids.push(generateRandomString(10));
-    gridDescriptions.push(generateRandomString(20));
-  }
-
+const GridView = ({ setAddPasswordModalShow, sessionId }: GridViewProps) => {
   const [selectedGrid, setSelectedGrid] = useState<number | null>(null);
+  const [grids, setGrids] = useState<GroupResponse[]>([]);
+
+  useEffect(() => {
+    const fetchGrids = async () => {
+      try {
+        const response = await axios.get<GroupResponse[]>(
+          "https://localhost:8080/api/" + sessionId + "/groups"
+        );
+        setGrids(response.data);
+      } catch (error) {
+        console.error("Failed to fetch groups", error);
+      }
+    };
+
+    fetchGrids();
+  }, []);
 
   return (
     <>
@@ -32,18 +34,20 @@ const GridView = ({ setAddPasswordModalShow }: GridViewProps) => {
         grids.map((grid, i) => (
           <GridHolderTemplate
             index={i}
-            title={grid}
-            description={gridDescriptions[i]}
+            title={grid.groupName}
+            description={grid.groupDescription}
             setSelectedGrid={setSelectedGrid}
+            sessionId={sessionId}
           />
         ))}
       {selectedGrid != null && (
         <LineView
           index={selectedGrid}
-          gridTitle={grids[selectedGrid]}
-          gridDescription={gridDescriptions[selectedGrid]}
+          gridTitle={grids[selectedGrid].groupName}
+          gridDescription={grids[selectedGrid].groupDescription}
           setSelectedGrid={setSelectedGrid}
           setAddPasswordModalShow={setAddPasswordModalShow}
+          sessionId={sessionId}
         />
       )}
     </>

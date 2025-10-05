@@ -5,7 +5,7 @@ interface LoginViewProps {
   setUsername: (username: string) => void;
   password: string;
   setPassword: (password: string) => void;
-  handleSubmitOnSignIn: (e: React.FormEvent) => void;
+  handleSubmitOnSignIn: (e: React.FormEvent<HTMLFormElement>) => void;
   setSignUpMode: (mode: boolean) => void;
 }
 

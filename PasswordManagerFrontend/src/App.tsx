@@ -14,11 +14,15 @@ const AppRoutes = ({
   token,
   setToken,
   setLoggedInStatus,
+  sessionId,
+  setSessionId,
 }: {
   token: string | null;
   setToken: React.Dispatch<React.SetStateAction<string | null>>;
   isLoggedIn: boolean;
   setLoggedInStatus: React.Dispatch<React.SetStateAction<boolean>>;
+  sessionId: number | null;
+  setSessionId: React.Dispatch<React.SetStateAction<number | null>>;
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -40,10 +44,14 @@ const AppRoutes = ({
             token={token}
             setToken={setToken}
             setLoggedInStatus={setLoggedInStatus}
+            sessionId={sessionId}
           />
         }
       />
-      <Route path="/login" element={<Login setToken={setToken} />} />
+      <Route
+        path="/login"
+        element={<Login setToken={setToken} setSessionId={setSessionId} />}
+      />
     </Routes>
   );
 };
@@ -51,6 +59,7 @@ const AppRoutes = ({
 const App = () => {
   const [token, setToken] = useState<string | null>(null);
   const [isLoggedIn, setLoggedInStatus] = useState(false);
+  const [sessionId, setSessionId] = useState<number | null>(null);
   return (
     <Router>
       <AppRoutes
@@ -58,6 +67,8 @@ const App = () => {
         setToken={setToken}
         isLoggedIn={isLoggedIn}
         setLoggedInStatus={setLoggedInStatus}
+        sessionId={sessionId}
+        setSessionId={setSessionId}
       />
     </Router>
   );
