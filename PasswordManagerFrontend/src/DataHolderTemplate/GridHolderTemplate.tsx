@@ -1,10 +1,4 @@
-interface GridHolderTemplateProps {
-  index: number;
-  title: string;
-  description: string | undefined;
-  setSelectedGrid: (index: number | null) => void;
-  sessionId: number | null;
-}
+import type { GridHolderTemplateProps } from "../DataProcessing/Props";
 
 const GridHolderTemplate = ({
   index,

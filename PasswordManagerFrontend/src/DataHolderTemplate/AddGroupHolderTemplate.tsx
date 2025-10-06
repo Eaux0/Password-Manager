@@ -1,10 +1,5 @@
 import React, { useState } from "react";
-
-interface AddGroupHolderTemplateProps {
-  buttonStyle?: (color: "gray" | "blue" | "red") => React.CSSProperties;
-  setAddGroupModalShow?: (show: boolean) => void;
-  sessionId: number | null;
-}
+import type { AddGroupHolderTemplateProps } from "../DataProcessing/Props";
 
 const AddGroupHolderTemplate: React.FC<AddGroupHolderTemplateProps> = ({
   buttonStyle,

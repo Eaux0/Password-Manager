@@ -3,11 +3,7 @@ import axios from "axios";
 import GridHolderTemplate from "../DataHolderTemplate/GridHolderTemplate";
 import LineView from "./LineView";
 import type { GroupResponse } from "../DataProcessing/RestApis.ts";
-
-interface GridViewProps {
-  setAddPasswordModalShow: (show: boolean) => void;
-  sessionId: number | null;
-}
+import type { GridViewProps } from "../DataProcessing/Props.ts";
 
 const GridView = ({ setAddPasswordModalShow, sessionId }: GridViewProps) => {
   const [selectedGrid, setSelectedGrid] = useState<number | null>(null);

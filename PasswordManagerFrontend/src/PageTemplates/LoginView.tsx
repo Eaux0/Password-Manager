@@ -1,13 +1,4 @@
-import React from "react";
-
-interface LoginViewProps {
-  username: string;
-  setUsername: (username: string) => void;
-  password: string;
-  setPassword: (password: string) => void;
-  handleSubmitOnSignIn: (e: React.FormEvent<HTMLFormElement>) => void;
-  setSignUpMode: (mode: boolean) => void;
-}
+import type { LoginViewProps } from "../DataProcessing/Props";
 
 const LoginView = ({
   username,

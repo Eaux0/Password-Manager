@@ -1,27 +1,4 @@
-import React from "react";
-
-interface PasswordHolderTemplateProps {
-  index: number | null;
-  title?: string;
-  description?: string;
-  username?: string;
-  password?: string;
-  editMode?: boolean;
-  showPassword?: boolean;
-  setSelectedPassword?: (index: number | null) => void;
-  setEditMode?: (editMode: boolean) => void;
-  setShowPassword?: (show: boolean) => void;
-  setUsername?: (username: string) => void;
-  setPassword?: (password: string) => void;
-  copyToClipboard?: (value: string, field: "username" | "password") => void;
-  copiedField?: "username" | "password" | null;
-  handleInput?: (
-    e: React.FormEvent<HTMLHeadingElement | HTMLParagraphElement>,
-    type: "title" | "description"
-  ) => void;
-  buttonStyle?: (color: "gray" | "blue" | "red") => React.CSSProperties;
-  sessionId: number | null;
-}
+import type { PasswordHolderTemplateProps } from "../DataProcessing/Props";
 
 const PasswordHolderTemplate = ({
   index,

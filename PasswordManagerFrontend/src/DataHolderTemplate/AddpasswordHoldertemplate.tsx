@@ -1,16 +1,11 @@
-import React, { useState } from "react";
-
-interface AddpasswordHoldertemplateProps {
-  buttonStyle?: (color: "gray" | "blue" | "red") => React.CSSProperties;
-  setAddPasswordModalShow?: (show: boolean) => void;
-  sessionId: number | null;
-}
+import { useState } from "react";
+import type { AddPasswordHoldertemplateProps } from "../DataProcessing/Props";
 
 const AddpasswordHoldertemplate = ({
   buttonStyle,
   setAddPasswordModalShow,
   sessionId,
-}: AddpasswordHoldertemplateProps) => {
+}: AddPasswordHoldertemplateProps) => {
   console.log(sessionId);
   const [showPassword, setShowPassword] = useState(false);
   const userGroups = ["a", "b", "c", "d"];

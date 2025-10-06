@@ -3,12 +3,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import LoginView from "../PageTemplates/LoginView";
 import SignUpView from "../PageTemplates/SignUpView";
-import generateAesKey from "../DataProcessing/RestApis.ts";
-
-interface LoginProps {
-  setToken: (token: string) => void;
-  setSessionId: (sessionId: number) => void;
-}
+import { generateAesKey } from "../DataProcessing/RestApis.ts";
+import type { LoginProps } from "../DataProcessing/Props.ts";
 
 const Login = ({ setToken, setSessionId }: LoginProps) => {
   const [username, setUsername] = useState("");

@@ -1,16 +1,12 @@
 import { useState } from "react";
 import ModalViewTemplate from "../PageTemplates/ModalViewTemplate";
-
-interface ListHolderTemplateProps {
-  index: number;
-  title: string;
-  description: string | undefined;
-}
+import type { ListHolderTemplateProps } from "../DataProcessing/Props";
 
 const ListHolderTemplate = ({
   index,
   title,
   description,
+  sessionId,
 }: ListHolderTemplateProps) => {
   const [selectedPassword, setSelectedPassword] = useState<number | null>(null);
   const [editMode, setEditMode] = useState(true);
@@ -77,6 +73,7 @@ const ListHolderTemplate = ({
           copyToClipboard={copyToClipboard}
           copiedField={copiedField}
           handleInput={handleInput}
+          sessionId={sessionId}
         />
       )}
     </>

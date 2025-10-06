@@ -2,21 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import ListHolderTemplate from "../DataHolderTemplate/ListHolderTemplate";
 import { Button } from "react-bootstrap";
-
-interface LineViewProps {
-  index: number | null;
-  gridTitle: string | null;
-  gridDescription: string | undefined;
-  setSelectedGrid?: (index: number | null) => void;
-  setAddPasswordModalShow: (show: boolean) => void;
-  sessionId: number | null;
-}
-
-interface ListItem {
-  id: number;
-  title: string;
-  description: string | undefined;
-}
+import type { LineViewProps, ListItem } from "../DataProcessing/Props";
 
 const LineView = ({
   index,

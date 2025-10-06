@@ -6,13 +6,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import GridView from "../PageTemplates/GridView";
 import LineView from "../PageTemplates/LineView";
 import ModalViewTemplate from "../PageTemplates/ModalViewTemplate";
-
-interface HomeProps {
-  token: string | null;
-  setToken: (token: string | null) => void;
-  setLoggedInStatus: (status: boolean) => void;
-  sessionId: number | null;
-}
+import BannerMessageView from "../PageTemplates/BannerMessageView";
+import type { HomeProps, MessageBanner } from "../DataProcessing/Props";
 
 const Home = ({ token, setToken, setLoggedInStatus, sessionId }: HomeProps) => {
   const handleLogout = () => {
@@ -23,6 +18,9 @@ const Home = ({ token, setToken, setLoggedInStatus, sessionId }: HomeProps) => {
   const [templateType, setTemplateType] = useState("Grid");
   const [addPasswordModalShow, setAddPasswordModalShow] = useState(false);
   const [addGroupModalShow, setAddGroupModalShow] = useState(false);
+  const [showErrorOrInfo, setShowErrorOrInfo] = useState<MessageBanner | null>(
+    null
+  );
   console.log(token);
   return (
     <>
@@ -72,7 +70,6 @@ const Home = ({ token, setToken, setLoggedInStatus, sessionId }: HomeProps) => {
           </div>
         </Container>
       </Navbar>
-      {/* <div className="main-content">Home - Token: {token}</div> */}
       {templateType === "Grid" ? (
         <div className="main-content">
           <GridView
@@ -105,6 +102,12 @@ const Home = ({ token, setToken, setLoggedInStatus, sessionId }: HomeProps) => {
           modalType="addGroup"
           setAddGroupModalShow={setAddGroupModalShow}
           sessionId={sessionId}
+        />
+      )}
+      {showErrorOrInfo && (
+        <BannerMessageView
+          showErrorOrInfo={showErrorOrInfo}
+          setShowErrorOrInfo={setShowErrorOrInfo}
         />
       )}
     </>

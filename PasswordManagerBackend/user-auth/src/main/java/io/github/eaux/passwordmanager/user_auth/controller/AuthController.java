@@ -2,8 +2,12 @@ package io.github.eaux.passwordmanager.user_auth.controller;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -45,17 +49,22 @@ public class AuthController {
     TokenUtil tokenUtil;
 
     @GetMapping("/login")
-    public String login(@RequestBody LoginDto loginDto) {
+    public ResponseEntity<Map<String, Object>> login(@RequestBody LoginDto loginDto) {
+
+        Map<String, Object> responseBody = new HashMap<>();
 
         String username = loginDto.getUsername();
         String password = loginDto.getPassword();
 
-        if (!userService.doesUsernameExists(username))
-            return "Username Does Not Exists";
+        if (!userService.doesUsernameExists(username)) {
+            responseBody.put("message", "Username Does Not Exists");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseBody);
+        }
 
         User currUser = userService.getUserByUserName(username);
         if (!password.equals(currUser.getPasswordHash())) {
-            return "Wrong Password";
+            responseBody.put("message", "Wrong Password");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseBody);
         }
 
         Session newSession = sessionService
@@ -73,31 +82,35 @@ public class AuthController {
                 new RedisSessionData(newSession.getUserId(), newSession.getEncryptedAESKey()));
 
         hashesUtil.setPrivateKey(credentialsService.getPrivateKey(currUser.getUserId()));
-        return "Login Successfull|" + credentialsService.getPublicKey(currUser.getUserId());
+
+        responseBody.put("message", "Login Successfull");
+        responseBody.put("publicKey", credentialsService.getPublicKey(currUser.getUserId()));
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(responseBody);
     }
 
     @PostMapping("/AESkey")
-    public Boolean getAESKeyAndToken(@RequestBody String AESKey) throws Exception {
+    public ResponseEntity<Map<String, Object>> getAESKeyAndToken(@RequestBody String AESKey) throws Exception {
         // Decode AESKey
         hashesUtil.setAESKey(AESKey);
 
         Session currSession = sessionService.getSessionBySessionId(tokenUtil.getSessionId());
         currSession.setEncryptedAESKey(AESKey);
         sessionService.createOrModifySession(currSession);
-        return true;
+
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Key Received"));
     }
 
     @GetMapping("/logout")
-    public Boolean logout() {
+    public ResponseEntity<Map<String, Object>> logout() {
         Long sessionId = tokenUtil.getSessionId();
         sessionService.deleteSessionBySessionId(sessionId);
         redisSessionService.deleteSessionData(sessionId);
-        return true;
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Logout Successful"));
     }
 
     @GetMapping("/generateAndRefreshToken")
-    public String generateAndRefreshToken() {
-        return tokenUtil.refreshAndGenerateToken();
+    public ResponseEntity<Map<String, Object>> generateAndRefreshToken() {
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("Refresh Token", tokenUtil.refreshAndGenerateToken()));
     }
 
     public String generateToken() {
@@ -105,15 +118,19 @@ public class AuthController {
     }
 
     @PostMapping("/signUp")
-    public String signUp(@RequestBody LoginDto loginDto) throws NoSuchAlgorithmException {
+    public ResponseEntity<Map<String, Object>> signUp(@RequestBody LoginDto loginDto) throws NoSuchAlgorithmException {
+
+        Map<String, Object> responseBody = new HashMap<>();
 
         String[] keys = hashesUtil.generateKeys();
 
         String publicKeyString = keys[0];
         String privateKeyString = keys[0];
 
-        if (userService.doesUsernameExists(loginDto.getUsername()))
-            return "Username Already Exists";
+        if (userService.doesUsernameExists(loginDto.getUsername())) {
+            responseBody.put("message", "Username Already Exists");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseBody);
+        }
 
         User newUser = userService.createUser(
                 new User(0, loginDto.getUsername(), loginDto.getPassword(), new Date(), new Date(), new Date()));
@@ -136,14 +153,16 @@ public class AuthController {
         redisSessionService.saveSessionData(newSession.getSessionId(),
                 new RedisSessionData(newSession.getUserId(), newSession.getEncryptedAESKey()));
 
-        return "User registered successfully";
+        responseBody.put("message", "User Registered");
+        responseBody.put("publicKey", publicKeyString);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(responseBody);
     }
 
     @GetMapping("/generatePassword")
-    public String generatePassword(@RequestBody int length,
+    public ResponseEntity<Map<String, Object>> generatePassword(@RequestBody int length,
             @RequestBody boolean includeSpecialChars,
             @RequestBody boolean includeNumbers) {
-        return "abcd";
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("Generated Password", "abcd"));
     }
 
     // @PostMapping("/encryptData/{sessionId}")
