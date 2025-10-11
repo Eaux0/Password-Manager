@@ -1,4 +1,6 @@
 import type { PasswordHolderTemplateProps } from "../DataProcessing/Props";
+import axios from "axios";
+import useSessionStore from "../DataProcessing/sessionStore";
 
 const PasswordHolderTemplate = ({
   index,
@@ -17,11 +19,24 @@ const PasswordHolderTemplate = ({
   copiedField,
   handleInput,
   buttonStyle,
-  sessionId,
 }: PasswordHolderTemplateProps) => {
-  console.log(sessionId);
-  const deletePassword = (index: number | null) => {
-    // Logic to delete the password
+  const { sessionId } = useSessionStore();
+
+  const deletePassword = async (index: number | null) => {
+    try {
+      const response = await axios.post(
+        "https://localhost:8080/api/" + sessionId + "/passwords/" + index
+      );
+
+      console.log("Response:", response.data);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error("Axios error:", error.response?.data || error.message);
+      } else {
+        console.error("Unexpected error:", error);
+      }
+    }
+
     console.log("Password deleted at index:", index);
     setSelectedPassword?.(null);
   };

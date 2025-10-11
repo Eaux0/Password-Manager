@@ -6,7 +6,6 @@ const ListHolderTemplate = ({
   index,
   title,
   description,
-  sessionId,
 }: ListHolderTemplateProps) => {
   const [selectedPassword, setSelectedPassword] = useState<number | null>(null);
   const [editMode, setEditMode] = useState(true);
@@ -73,7 +72,6 @@ const ListHolderTemplate = ({
           copyToClipboard={copyToClipboard}
           copiedField={copiedField}
           handleInput={handleInput}
-          sessionId={sessionId}
         />
       )}
     </>

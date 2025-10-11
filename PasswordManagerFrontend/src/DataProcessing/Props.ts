@@ -2,7 +2,6 @@ export interface HomeProps {
   token: string | null;
   setToken: (token: string | null) => void;
   setLoggedInStatus: (status: boolean) => void;
-  sessionId: number | null;
 }
 
 export interface MessageBanner {
@@ -18,7 +17,6 @@ export interface BannerMessageViewProps{
 
 export interface GridViewProps {
   setAddPasswordModalShow: (show: boolean) => void;
-  sessionId: number | null;
 }
 
 export interface LineViewProps {
@@ -27,7 +25,6 @@ export interface LineViewProps {
   gridDescription: string | undefined;
   setSelectedGrid?: (index: number | null) => void;
   setAddPasswordModalShow: (show: boolean) => void;
-  sessionId: number | null;
 }
 
 export interface ListItem {
@@ -67,7 +64,6 @@ export interface ModalViewTemplateProps {
   ) => void;
   setAddPasswordModalShow?: (show: boolean) => void;
   setAddGroupModalShow?: (show: boolean) => void;
-  sessionId: number | null;
 }
 
 export interface SignUpViewProps {
@@ -80,19 +76,16 @@ export interface SignUpViewProps {
 
 export interface LoginProps {
   setToken: (token: string) => void;
-  setSessionId: (sessionId: number) => void;
 }
 
 export interface AddGroupHolderTemplateProps {
   buttonStyle?: (color: "gray" | "blue" | "red") => React.CSSProperties;
   setAddGroupModalShow?: (show: boolean) => void;
-  sessionId: number | null;
 }
 
 export interface AddPasswordHoldertemplateProps {
   buttonStyle?: (color: "gray" | "blue" | "red") => React.CSSProperties;
   setAddPasswordModalShow?: (show: boolean) => void;
-  sessionId: number | null;
 }
 
 export interface GridHolderTemplateProps {
@@ -100,14 +93,12 @@ export interface GridHolderTemplateProps {
   title: string;
   description: string | undefined;
   setSelectedGrid: (index: number | null) => void;
-  sessionId: number | null;
 }
 
 export interface ListHolderTemplateProps {
   index: number;
   title: string;
   description: string | undefined;
-  sessionId: number | null;
 }
 
 export interface PasswordHolderTemplateProps {
@@ -130,5 +121,4 @@ export interface PasswordHolderTemplateProps {
     type: "title" | "description"
   ) => void;
   buttonStyle?: (color: "gray" | "blue" | "red") => React.CSSProperties;
-  sessionId: number | null;
 }

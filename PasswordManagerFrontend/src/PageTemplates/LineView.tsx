@@ -3,15 +3,16 @@ import axios from "axios";
 import ListHolderTemplate from "../DataHolderTemplate/ListHolderTemplate";
 import { Button } from "react-bootstrap";
 import type { LineViewProps, ListItem } from "../DataProcessing/Props";
+import useSessionStore from "../DataProcessing/sessionStore";
 
 const LineView = ({
   index,
   gridTitle,
   gridDescription,
   setSelectedGrid,
-  sessionId,
 }: LineViewProps) => {
   const [passwords, setPasswords] = useState<ListItem[]>([]);
+  const { sessionId } = useSessionStore();
 
   useEffect(() => {
     let url = "";

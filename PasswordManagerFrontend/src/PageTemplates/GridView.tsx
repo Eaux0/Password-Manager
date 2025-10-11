@@ -4,10 +4,12 @@ import GridHolderTemplate from "../DataHolderTemplate/GridHolderTemplate";
 import LineView from "./LineView";
 import type { GroupResponse } from "../DataProcessing/RestApis.ts";
 import type { GridViewProps } from "../DataProcessing/Props.ts";
+import useSessionStore from "../DataProcessing/sessionStore.ts";
 
-const GridView = ({ setAddPasswordModalShow, sessionId }: GridViewProps) => {
+const GridView = ({ setAddPasswordModalShow }: GridViewProps) => {
   const [selectedGrid, setSelectedGrid] = useState<number | null>(null);
   const [grids, setGrids] = useState<GroupResponse[]>([]);
+  const { sessionId } = useSessionStore();
 
   useEffect(() => {
     const fetchGrids = async () => {
@@ -33,7 +35,6 @@ const GridView = ({ setAddPasswordModalShow, sessionId }: GridViewProps) => {
             title={grid.groupName}
             description={grid.groupDescription}
             setSelectedGrid={setSelectedGrid}
-            sessionId={sessionId}
           />
         ))}
       {selectedGrid != null && (
@@ -43,7 +44,6 @@ const GridView = ({ setAddPasswordModalShow, sessionId }: GridViewProps) => {
           gridDescription={grids[selectedGrid].groupDescription}
           setSelectedGrid={setSelectedGrid}
           setAddPasswordModalShow={setAddPasswordModalShow}
-          sessionId={sessionId}
         />
       )}
     </>

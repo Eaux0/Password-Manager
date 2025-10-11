@@ -1,14 +1,15 @@
 import { useState } from "react";
 import type { AddPasswordHoldertemplateProps } from "../DataProcessing/Props";
+import axios from "axios";
+import useSessionStore from "../DataProcessing/sessionStore";
 
 const AddpasswordHoldertemplate = ({
   buttonStyle,
   setAddPasswordModalShow,
-  sessionId,
 }: AddPasswordHoldertemplateProps) => {
-  console.log(sessionId);
   const [showPassword, setShowPassword] = useState(false);
   const userGroups = ["a", "b", "c", "d"];
+  const { sessionId } = useSessionStore();
 
   const [passwordName, setPasswordName] = useState("");
   const [passwordDescription, setPasswordDescription] = useState("");
@@ -17,7 +18,7 @@ const AddpasswordHoldertemplate = ({
   const [password, setPassword] = useState("");
   const [selectedGroup, setSelectedGroup] = useState("");
 
-  const savePassword = () => {
+  const savePassword = async () => {
     if (passwordName.trim() === "") {
       alert("Password name cannot be empty");
       return;
@@ -42,6 +43,30 @@ const AddpasswordHoldertemplate = ({
       alert("Select a password group");
       return;
     }
+
+    try {
+      const response = await axios.post(
+        "https://localhost:8080/api/" + sessionId + "/passwords",
+        {
+          groupId: selectedGroup,
+          userPasswordId: -1,
+          passwordName: passwordName,
+          passwordDescription: passwordDescription,
+          passwordType: "alphaNumeric",
+          passwordUserName: username,
+          password: password,
+        }
+      );
+
+      console.log("Response:", response.data);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error("Axios error:", error.response?.data || error.message);
+      } else {
+        console.error("Unexpected error:", error);
+      }
+    }
+
     console.log("Password saved!");
     console.log({ username, password, selectedGroup });
     setAddPasswordModalShow?.(false);

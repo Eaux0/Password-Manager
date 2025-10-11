@@ -9,7 +9,7 @@ import ModalViewTemplate from "../PageTemplates/ModalViewTemplate";
 import BannerMessageView from "../PageTemplates/BannerMessageView";
 import type { HomeProps, MessageBanner } from "../DataProcessing/Props";
 
-const Home = ({ token, setToken, setLoggedInStatus, sessionId }: HomeProps) => {
+const Home = ({ token, setToken, setLoggedInStatus }: HomeProps) => {
   const handleLogout = () => {
     setToken(null);
     setLoggedInStatus(false);
@@ -72,10 +72,7 @@ const Home = ({ token, setToken, setLoggedInStatus, sessionId }: HomeProps) => {
       </Navbar>
       {templateType === "Grid" ? (
         <div className="main-content">
-          <GridView
-            setAddPasswordModalShow={setAddPasswordModalShow}
-            sessionId={sessionId}
-          />
+          <GridView setAddPasswordModalShow={setAddPasswordModalShow} />
         </div>
       ) : (
         <div className="main-content">
@@ -84,7 +81,6 @@ const Home = ({ token, setToken, setLoggedInStatus, sessionId }: HomeProps) => {
             gridTitle={null}
             gridDescription={undefined}
             setAddPasswordModalShow={setAddPasswordModalShow}
-            sessionId={sessionId}
           />
         </div>
       )}
@@ -93,7 +89,6 @@ const Home = ({ token, setToken, setLoggedInStatus, sessionId }: HomeProps) => {
           index={null}
           modalType="addPassword"
           setAddPasswordModalShow={setAddPasswordModalShow}
-          sessionId={sessionId}
         />
       )}
       {addGroupModalShow && (
@@ -101,7 +96,6 @@ const Home = ({ token, setToken, setLoggedInStatus, sessionId }: HomeProps) => {
           index={null}
           modalType="addGroup"
           setAddGroupModalShow={setAddGroupModalShow}
-          sessionId={sessionId}
         />
       )}
       {showErrorOrInfo && (

@@ -5,9 +5,7 @@ const GridHolderTemplate = ({
   title,
   description,
   setSelectedGrid,
-  sessionId,
 }: GridHolderTemplateProps) => {
-  console.log(sessionId);
   return (
     <div
       style={{

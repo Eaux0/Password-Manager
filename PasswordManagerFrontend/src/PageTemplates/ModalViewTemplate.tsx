@@ -22,7 +22,6 @@ const ModalViewTemplate = ({
   handleInput,
   setAddPasswordModalShow,
   setAddGroupModalShow,
-  sessionId,
 }: ModalViewTemplateProps) => {
   const buttonStyle = (color: "gray" | "blue" | "red") => {
     const colors = {
@@ -85,21 +84,18 @@ const ModalViewTemplate = ({
               copiedField={copiedField}
               handleInput={handleInput}
               buttonStyle={buttonStyle}
-              sessionId={sessionId}
             />
           )}
           {modalType === "addPassword" && (
             <AddpasswordHoldertemplate
               buttonStyle={buttonStyle}
               setAddPasswordModalShow={setAddPasswordModalShow}
-              sessionId={sessionId}
             />
           )}
           {modalType === "addGroup" && (
             <AddGroupHolderTemplate
               buttonStyle={buttonStyle}
               setAddGroupModalShow={setAddGroupModalShow}
-              sessionId={sessionId}
             />
           )}
         </div>

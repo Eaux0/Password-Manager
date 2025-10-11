@@ -4,9 +4,8 @@ import axios from "axios";
 import LoginView from "../PageTemplates/LoginView";
 import SignUpView from "../PageTemplates/SignUpView";
 import { generateAesKey } from "../DataProcessing/RestApis.ts";
-import type { LoginProps } from "../DataProcessing/Props.ts";
 
-const Login = ({ setToken, setSessionId }: LoginProps) => {
+const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [signUpMode, setSignUpMode] = useState(false);
@@ -24,7 +23,6 @@ const Login = ({ setToken, setSessionId }: LoginProps) => {
       });
 
       console.log("Response:", response.data);
-      setSessionId(response.data.sessionId);
       return generateAesKey();
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -33,8 +31,6 @@ const Login = ({ setToken, setSessionId }: LoginProps) => {
         console.error("Unexpected error:", error);
       }
     }
-    const tempToken = "1234567890abcdef";
-    setToken(tempToken);
     navigate("/");
   };
 
@@ -44,7 +40,8 @@ const Login = ({ setToken, setSessionId }: LoginProps) => {
     console.log("Password:", password);
 
     try {
-      const response = await axios.post("https://localhost:8081/api/login", {
+      const response = await axios.post("https://localhost:8081/api/signUp", {
+        userId: -1,
         username: "yourUsername",
         password: "yourPassword",
       });
@@ -57,8 +54,6 @@ const Login = ({ setToken, setSessionId }: LoginProps) => {
         console.error("Unexpected error:", error);
       }
     }
-    const tempToken = "1234567890abcdef";
-    setToken(tempToken);
     navigate("/");
   };
 
